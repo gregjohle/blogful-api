@@ -5,7 +5,7 @@ const {
   makeMaliciousArticle,
 } = require("./articles.fixtures");
 
-describe("Articles Endpoints", () => {
+describe("Articles Endpoints", function () {
   let db;
 
   before("make knex instance", () => {
@@ -106,8 +106,7 @@ describe("Articles Endpoints", () => {
   });
 
   describe(`POST /api/articles`, () => {
-    it(`creates an article, responding with 201 and the new article`, function () {
-      this.retries(3);
+    it(`creates an article, responding with 201 and the new article`, () => {
       const newArticle = {
         title: "Test new article",
         style: "Listicle",
@@ -198,12 +197,12 @@ describe("Articles Endpoints", () => {
     });
   });
 
-  describe.only(`PATCH /api/articles/:article_id`, () => {
+  describe(`PATCH /api/articles/:article_id`, () => {
     context(`Given no articles`, () => {
       it(`responds with 404`, () => {
         const articleId = 123456;
         return supertest(app)
-          .patch(`/api/articles/${articleId}`)
+          .delete(`/api/articles/${articleId}`)
           .expect(404, { error: { message: `Article doesn't exist` } });
       });
     });
@@ -244,9 +243,33 @@ describe("Articles Endpoints", () => {
           .send({ irrelevantField: "foo" })
           .expect(400, {
             error: {
-              message: `Request body must contain either 'title', 'style' or 'content'`,
+              message: `Request body must content either 'title', 'style' or 'content'`,
             },
           });
+      });
+
+      it(`responds with 204 when updating only a subset of fields`, () => {
+        const idToUpdate = 2;
+        const updateArticle = {
+          title: "updated article title",
+        };
+        const expectedArticle = {
+          ...testArticles[idToUpdate - 1],
+          ...updateArticle,
+        };
+
+        return supertest(app)
+          .patch(`/api/articles/${idToUpdate}`)
+          .send({
+            ...updateArticle,
+            fieldToIgnore: "should not be in GET response",
+          })
+          .expect(204)
+          .then((res) =>
+            supertest(app)
+              .get(`/api/articles/${idToUpdate}`)
+              .expect(expectedArticle)
+          );
       });
     });
   });

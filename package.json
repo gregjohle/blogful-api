@@ -13,7 +13,7 @@
     "deploy": "git push heroku master"
   },
   "keywords": [],
-  "author": "Thomas `tomatao` Hudspith-Tatham <iammotivated@gmail.com>",
+  "author": "Greg Johle <greg.johle@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
